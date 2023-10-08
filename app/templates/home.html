@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block content %}
+  <h1>Welcome to the Stock Market</h1>
+  
+  {% if user.is_authenticated %}
+    <p>Hello, {{ user.username }}! You can see the list of stocks below:</p>
+    <table class="table">
+      <thead>
+        <tr>
+          <th scope="col">#</th>
+          <th scope="col">Stock Name</th>
+          <th scope="col">Submit Query</th>
+          <th scope="col">Download</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for stock in stocks|slice:":5" %}
+          <tr>
+            <th scope="row">{{ forloop.counter }}</th>
+            <td>
+              {{ stock.name }}
+            </td>
+            <td>
+              <form method="post" action="{% url 'stock_detail' slug=stock.slug %}">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit">Submit Query</button>
+              </form>
+            </td>
+            <td>
+              <a href="{% url 'download_queries' %}" class="btn btn-outline-info">Download</a>
+            </td>
+          </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+
+    <!-- Add a button to load more stocks -->
+    <div class="load-more__btn mt-3" id="btn">
+      <button id="load-more-stocks">Load More</button>
+    </div>
+  {% else %}
+    <p>Please <a href="{% url 'login' %}">log in</a> to see the list of stocks.</p>
+  {% endif %}
+  <!-- JavaScript for handling the load more button -->
+  <!-- Load jQuery from Google CDN -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+  <!-- Your custom script -->
+  <script>
+    // Ensure jQuery is loaded before using $
+    function loadScript(url, callback) {
+      var script = document.createElement('script');
+      script.type = 'text/javascript';
+      script.src = url;
+      script.onload = callback;
+      document.head.appendChild(script);
+    }
+
+    loadScript('https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js', function() {
+      const loadBtn = document.getElementById('load-more-stocks');
+      jQuery.noConflict();
+      (function($) {
+        var _current_item = $('table tbody tr').length;
+        $.ajax({
+          url: 'load-more-stocks/',
+          type: 'GET',
+          data: {
+            'offset': _current_item,
+            'num_to_load': 2
+          },
+          beforeSend: function () {
+            // Any loading indicators or logic here
+          },
+          success: function (response) {
+            console.log(response);
+            // Handle the response
+          },
+          error: function (err) {
+            console.log(err);
+            // Handle errors if needed
+          }
+        });
+
+        // Your other functions here if needed
+
+      })(jQuery);
+
+      loadBtn.addEventListener('click', function () {
+        // Call the load more function here (e.g., loadMoreItems())
+      });
+    });
+
+  </script>
+
+{% endblock %}

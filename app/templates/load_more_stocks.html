@@ -1,0 +1,13 @@
+<!-- load_more_stocks.html -->
+{% extends 'base.html' %}
+{% block content %}
+{% for stock in stocks %}
+  <div>
+    <h3>Stock Name: {{ stock.name }}</h3>
+    <p>Stock Descriptions: {{ stock.description }}</p>
+    <p>Stock Video: {{ stock.video_url }}</p>
+    <p>Stock Slug: {{ stock.slug }}</p>
+  </div>
+{% endfor %}
+<a href="{% url 'home' %}" class="btn btn-outline-dark">Go to Main Page</a>
+{% endblock %}
